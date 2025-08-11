@@ -1,34 +1,39 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete,  UsePipes, ValidationPipe, Request } from '@nestjs/common';
 import { TaxService } from './tax.service';
 import { CreateTaxDto } from './dto/create-tax.dto';
 import { UpdateTaxDto } from './dto/update-tax.dto';
+import { Roles } from 'src/auth/roles.decorator';
+import { Role } from 'src/auth/role.enum';
+import { Tax } from './entities/tax.entity';
 
 @Controller('tax')
+
 export class TaxController {
   constructor(private readonly taxService: TaxService) {}
 
   @Post()
-  create(@Body() createTaxDto: CreateTaxDto) {
+  @Roles(Role.ADMIN, Role.VENDOR)
+  @UsePipes(new ValidationPipe({ whitelist: true }))
+  async create(@Body() createTaxDto: CreateTaxDto): Promise<Tax> {
     return this.taxService.create(createTaxDto);
   }
 
-  @Get()
-  findAll() {
+  @Get('')
+  @Roles(Role.ADMIN, Role.CUSTOMER, Role.VENDOR)
+  async findAll(): Promise<Tax[]> {
     return this.taxService.findAll();
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.taxService.findOne(+id);
-  }
-
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateTaxDto: UpdateTaxDto) {
-    return this.taxService.update(+id, updateTaxDto);
+  @Roles(Role.ADMIN)
+  @UsePipes(new ValidationPipe({ whitelist: true }))
+  async update(@Param('id') id: string, @Body() updateTaxDto: UpdateTaxDto): Promise<Tax> {
+    return this.taxService.update(id, updateTaxDto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.taxService.remove(+id);
+  @Roles(Role.ADMIN, Role.VENDOR)
+  async remove(@Param('id') id: string): Promise<void> {
+    return this.taxService.remove(id);
   }
 }
