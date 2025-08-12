@@ -15,6 +15,7 @@ import { User, UserSchema } from 'src/user/entities/user.entity';
 import { JwtStrategy } from './strategies/jwt.strategie';
 import { OtpModule } from 'src/otp/otp.module';
 import { ProviderIdentity, ProviderIdentitySchema } from './entities/provider-identity.entity';
+import { LocalStrategy } from './local.strategy';
 
 
 @Module({
@@ -42,7 +43,7 @@ import { ProviderIdentity, ProviderIdentitySchema } from './entities/provider-id
     ]),
   ],
   controllers: [AuthController],
-  providers: [AuthService, JwtStrategy, JwtAuthGuard, RolesGuard],
+  providers: [AuthService, JwtStrategy, JwtAuthGuard, RolesGuard, LocalStrategy],
   exports: [AuthService,PassportModule,JwtStrategy, JwtAuthGuard, RolesGuard]
 
 })

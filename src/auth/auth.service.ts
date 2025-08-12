@@ -274,6 +274,10 @@ export class AuthService {
     }
   }
 
+  async findUser(id:string){
+    return await this.userModel.findById(id).select('-password').exec();
+  }
+
    async findOrCreateUser(profile: {
     email: string;
     firstName?: string;
@@ -339,13 +343,77 @@ export class AuthService {
     // Valider un retour d’auth externe
   }
 
+   async validateUser(username: string, pass: string): Promise<any> {
+    console.log(username, pass)
+    const user = await this.userService.findByEmail(username);
+    
+
+    if(!user){
+      throw new BadRequestException('utilisateur indéfini');
+    }
+    
+    console.log(user, 'userval')
+    const isPasswordValid = await bcrypt.compare(pass, user?.password);
+
+    if (isPasswordValid) {
+      const { password, ...result } = user;
+      return result;
+    }
+    return null;
+  }
+
+  login(user: any) {
+    console.log(user, 'authser log')
+    const payload = { username: user.email, sub: user._id.toString() };
+    console.log(payload, 'payload')
+    return {
+      access_token: this.jwtService.sign(payload),
+    };
+  }
+
+
+  async loginUser(user: any): Promise<{ access_token: string }> {
+  console.log(user, 'authser log');
+  
+  // Validation de l'email et de l'id utilisateur
+  if (!user || !user.email || typeof user.email !== 'string') {
+    throw new UnauthorizedException('Identifiants invalides');
+  }
+  
+  if (!user._id) {
+    throw new UnauthorizedException('Utilisateur introuvable');
+  }
+
+  const authIdentity = await this.authIdentityModel.findOne({ email: user.email });
+  
+  if (!authIdentity) {
+    throw new UnauthorizedException('Identité non trouvée');
+  }
+
+  // Si l'utilisateur a un mot de passe hashé
+  const isPasswordValid = await bcrypt.compare(user.password, authIdentity.password);
+  if (!isPasswordValid) {
+    throw new UnauthorizedException('Mot de passe incorrect');
+  }
+
+  const payload = { username: user.email, sub: user._id.toString() };
+  console.log(payload, 'payload');
+
+  // Si l'utilisateur est un admin "forcé" ou a un rôle spécifique
+  const userInfo = await this.userService.findOneById(authIdentity.user.toString());
+  if (userInfo?.role === 'admin') {
+    payload['role'] = 'admin'; // Ajoute le rôle dans le payload si nécessaire
+  }
+
+  // Génére le JWT pour l'utilisateur
+  const access_token = this.jwtService.sign(payload);
+  
+  return { access_token };
+}
+
+
 
 
 
 
 }
-
-
- 
-
-

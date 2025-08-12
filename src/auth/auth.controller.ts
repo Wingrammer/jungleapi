@@ -42,9 +42,28 @@ export class AuthController {
   }
 
   /** LOGIN PAR PHONE + PASSWORD */
+  @UseGuards(AuthGuard('local'))
   @Post('login')
+  async signIn(@Request() req) {
+    console.log(req.user)
+    return this.authService.signIn(req.user, req.password);
+  }
+  /*@Post('login')
   async signIn(@Body() signInDto: { login: string; password: string }) {
     return this.authService.signIn(signInDto.login, signInDto.password);
+  }*/
+
+  @UseGuards(AuthGuard('jwt'))
+  @Get('profilen')
+  getProfil(@Request() req) {
+    return req.user;
+  }
+
+  @Roles(Role.VENDOR)
+  @UseGuards(JwtAuthGuard)
+  @Get('vendor_profile')
+  getVendorProfil(@Request() req) {
+    return req.user;
   }
 
     /** REFRESH TOKEN */
@@ -56,7 +75,6 @@ export class AuthController {
     }
     return this.authService.refresh(body.refresh_token);
   }
-
  
   /** PROFILE */
   @Get('profile')
@@ -145,5 +163,14 @@ export class AuthController {
       message: `Hello Admin ${req.user.first_name} !`,
       user: req.user,
     };
+  }
+
+  @UseGuards(AuthGuard('local'))
+  @Post('logout')
+  async logout(@Request() req) {
+    return req.logout(function(err){
+      if (err) {return 'error'}
+      return 'logged out'
+    });
   }
 }

@@ -11,7 +11,7 @@ transform: (
   doc,
   ret: { _id: any; __v: number; id?: string }
 ) => {
-  ret.id = `ordsum_${doc._id.toString()}`;
+  ret.id = `${doc._id.toString()}`;
   delete (ret as any)._id;
   delete (ret as any).__v;
   return ret;

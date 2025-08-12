@@ -12,7 +12,7 @@ import { AuthModule } from 'src/auth/auth.module';
 
   imports: [
     AuthModule,
-     JwtModule.register({}),
+    JwtModule.register({}),
     MongooseModule.forFeature([
       { name: Store.name, schema: StoreSchema },
       { name: Currency.name, schema: CurrencySchema },
