@@ -6,7 +6,7 @@ import { Document } from 'mongoose';
   collection: 'invites',
   toJSON: {
     virtuals: true,
-    transform: (_, ret) => {
+    transform: (_, ret:{ _id?: any; __v?: number; id?: string; password?: string; }) => {
       ret.id = ret._id.toString();
       delete ret._id;
       delete ret.__v;

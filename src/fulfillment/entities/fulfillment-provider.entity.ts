@@ -7,7 +7,7 @@ export type FulfillmentProviderDocument = FulfillmentProvider & Document;
   timestamps: true, // Ajoute automatiquement createdAt et updatedAt
   toJSON: { 
     virtuals: true,
-    transform: function(doc, ret) {
+    transform: function(doc, ret:{ _id?: any; __v?: number; id?: string; password?: string; }) {
       delete ret._id;
       delete ret.__v;
       return ret;

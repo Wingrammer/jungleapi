@@ -8,7 +8,7 @@ export type FulfillmentSetDocument = FulfillmentSet & Document;
   timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' },
   toJSON: {
     virtuals: true,
-    transform: function(doc, ret) {
+    transform: function(doc, ret:{ _id?: any; __v?: number; id?: string; password?: string; }) {
       delete ret._id;
       delete ret.__v;
       return ret;

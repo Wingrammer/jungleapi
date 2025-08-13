@@ -8,7 +8,7 @@ import { Store } from 'src/store/entities/store.entity';
   collection: 'users',
   toJSON: {
     virtuals: true,
-    transform: (_, ret) => {
+    transform: (_, ret:{ _id?: any; __v?: number; id?: string; password?: string; }) => {
       ret.id = ret._id.toString();
       delete ret._id;
       delete ret.__v;

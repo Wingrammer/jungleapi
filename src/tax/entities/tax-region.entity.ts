@@ -8,7 +8,7 @@ import { TaxRate } from './tax-rate.entity';
   collection: 'tax_regions',
   toJSON: {
     virtuals: true,
-    transform: (_, ret) => {
+    transform: (_, ret:{ _id?: any; __v?: number; id?: string; password?: string; }) => {
       ret.id = ret._id;
       delete ret._id;
       delete ret.__v;
