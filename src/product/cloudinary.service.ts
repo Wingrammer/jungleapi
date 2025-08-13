@@ -9,7 +9,7 @@ cloudinary.config({
 
 @Injectable()
 export class CloudinaryService {
-  async uploadImage(file: Express.Multer.File): Promise<string> {
+  async uploadImage(file: any): Promise<string> {
     const result = await cloudinary.uploader.upload(file.path, {
       folder: 'products', // tu peux changer
     });
