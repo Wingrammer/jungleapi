@@ -121,7 +121,7 @@ export class AuthService {
       sub: user.id,
       identityId,
     };
-
+    console.log('Access Payload:', accessPayload);
     return {
       access_token: this.jwtService.sign(accessPayload),
       refresh_token: this.jwtService.sign(refreshPayload, {
@@ -385,14 +385,15 @@ export class AuthService {
     // console.log(user, 'authser log')
     // const payload = { username: user.email, sub: user._id.toString() };
     // console.log(payload, 'payload')
-    
+  
+    // return { access_token: this.jwtService.sign(payload) };
 
-    const tokens = this.generateTokens(user, user.authIdentity);
+    return this.generateTokens(user, user.authIdentity);
 
-    return {
-      ...tokens,
-      role: user.role ?? 'user', //  retourne le rôle pour le frontend
-    };
+    // return {
+    //   ...tokens,
+    //   role: user.role ?? 'user', //  retourne le rôle pour le frontend
+    // };
   }
 
 
