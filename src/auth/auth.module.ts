@@ -43,8 +43,8 @@ import { LocalStrategy } from './local.strategy';
     ]),
   ],
   controllers: [AuthController],
-  providers: [AuthService, JwtStrategy, JwtAuthGuard, RolesGuard, LocalStrategy],
-  exports: [AuthService,PassportModule,JwtStrategy, JwtAuthGuard, RolesGuard]
+  providers: [AuthService, JwtStrategy, JwtAuthGuard, LocalStrategy],
+  exports: [AuthService,PassportModule,JwtStrategy, JwtAuthGuard]
 
 })
 export class AuthModule {}

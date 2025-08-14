@@ -43,6 +43,9 @@ export class User extends Document {
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Store' })
   store: Store;
 
+  @Prop({ type: String, required: false })
+  authIdentity?: string;
+
   @Prop({ type: Date, default: null })
   deleted_at?: Date;
 

@@ -46,7 +46,7 @@ export class AuthController {
   @Post('login')
   async signIn(@Request() req) {
     console.log(req.user)
-    return this.authService.signIn(req.user, req.password);
+    return this.authService.login(req.user);
   }
   /*@Post('login')
   async signIn(@Body() signInDto: { login: string; password: string }) {
@@ -60,7 +60,7 @@ export class AuthController {
   }
 
   @Roles(Role.VENDOR)
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Get('vendor_profile')
   getVendorProfil(@Request() req) {
     return req.user;

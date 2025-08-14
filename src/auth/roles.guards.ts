@@ -18,25 +18,25 @@ export class RolesGuard implements CanActivate {
       context.getHandler(),
       context.getClass(),
     ]);
-
+    console.log(requiredRoles, 'requiredRoles');
     if (!requiredRoles || requiredRoles.length === 0) {
       return true;
     }
 
     const request = context.switchToHttp().getRequest();
-    console.log(request.user)
+    console.log(request.user, 'po')
     const user = request.user;
 
     if (!user) {
       throw new UnauthorizedException('Utilisateur non authentifié');
     }
 
-    if (!user.roles || !Array.isArray(user.roles)) {
-      throw new ForbiddenException('Rôle utilisateur invalide');
-    }
+    // if (!user.role || !Array.isArray(user.roles)) {
+    //   throw new ForbiddenException('Rôle utilisateur invalide');
+    // }
 
-    const hasRole = requiredRoles.some((role) => user.roles.includes(role));
-
+    const hasRole = requiredRoles.includes(user.role);
+    
     if (!hasRole) {
       throw new ForbiddenException('Accès refusé : rôle insuffisant');
     }

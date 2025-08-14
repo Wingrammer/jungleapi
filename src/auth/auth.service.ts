@@ -102,33 +102,33 @@ export class AuthService {
       throw error;
     }
 
-    return this.generateTokens(newUser, authIdentity);
+    return this.generateTokens(newUser, authIdentity?.id);
   }
 
       
 
 
-  generateTokens(user: User, identity: AuthIdentity): TokensDto {
-  const accessPayload = {
-    sub: user._id,
-    email: user.email,
-    phone: user.phone,
-    role: user.role,
-    first_name: user.first_name,
-  };
+  generateTokens(user: User, identityId: string): TokensDto {
+    const accessPayload = {
+      sub: user.id,
+      email: user.email,
+      phone: user.phone,
+      role: user.role,
+      first_name: user.first_name,
+    };
 
-  const refreshPayload = {
-    sub: user._id,
-    identityId: identity.id,
-  };
+    const refreshPayload = {
+      sub: user.id,
+      identityId,
+    };
 
-  return {
-    access_token: this.jwtService.sign(accessPayload),
-    refresh_token: this.jwtService.sign(refreshPayload, {
-      expiresIn: '7d',
-    }),
-  };
- }
+    return {
+      access_token: this.jwtService.sign(accessPayload),
+      refresh_token: this.jwtService.sign(refreshPayload, {
+        expiresIn: '7d',
+      }),
+    };
+  }
 
   async createIdentity(createIdentityDto: {
     user: Types.ObjectId;
@@ -187,7 +187,7 @@ export class AuthService {
     user.role = 'admin'; //  on force ici le rôle
   }
 
-  const tokens = this.generateTokens(user, authIdentity);
+  const tokens = this.generateTokens(user, authIdentity?.id);
 
   return {
     ...tokens,
@@ -212,7 +212,7 @@ export class AuthService {
       throw new UnauthorizedException('Identité non trouvée');
     }
 
-    return this.generateTokens(user, authIdentity);
+    return this.generateTokens(user, authIdentity?.id);
   }
 
   async refresh(refresh_token: string): Promise<{ access_token: string }> {
@@ -343,31 +343,55 @@ export class AuthService {
     // Valider un retour d’auth externe
   }
 
-   async validateUser(username: string, pass: string): Promise<any> {
+  async validateUser(username: string, pass: string): Promise<any> {
     console.log(username, pass)
-    const user = await this.userService.findByEmail(username);
-    
+    let authIdentity;
 
-    if(!user){
-      throw new BadRequestException('utilisateur indéfini');
-    }
-    
-    console.log(user, 'userval')
-    const isPasswordValid = await bcrypt.compare(pass, user?.password);
+    const isPhone = /^\+?\d+$/.test(username);
 
-    if (isPasswordValid) {
-      const { password, ...result } = user;
-      return result;
+    if (isPhone) {
+      authIdentity = await this.authIdentityModel.findOne({ phone: username });
+    } else {
+      const usernameLower = username.toLowerCase();
+      authIdentity = await this.authIdentityModel.findOne({
+        $or: [{ username: usernameLower }, { email: usernameLower }],
+      });
     }
-    return null;
+
+    if (!authIdentity) {
+      throw new UnauthorizedException('Identité non trouvée creer un compte.');
+    }
+
+    const isPasswordValid = await bcrypt.compare(pass, authIdentity.password);
+    if (!isPasswordValid) {
+      throw new UnauthorizedException('Mot de passe incorrect.');
+    }
+
+    const user = await this.userService.findOneById(authIdentity.user.toString());
+    if (!user) {
+      throw new UnauthorizedException('Utilisateur introuvable.');
+    }
+    user.authIdentity = authIdentity.id;
+  
+    //  Si l'utilisateur est un admin "forcé"
+    if (authIdentity.email === 'anatojoyce3@gmail.com') {
+      user.role = 'admin'; //  on force ici le rôle
+    }
+    return user;
+    
   }
 
   login(user: any) {
-    console.log(user, 'authser log')
-    const payload = { username: user.email, sub: user._id.toString() };
-    console.log(payload, 'payload')
+    // console.log(user, 'authser log')
+    // const payload = { username: user.email, sub: user._id.toString() };
+    // console.log(payload, 'payload')
+    
+
+    const tokens = this.generateTokens(user, user.authIdentity);
+
     return {
-      access_token: this.jwtService.sign(payload),
+      ...tokens,
+      role: user.role ?? 'user', //  retourne le rôle pour le frontend
     };
   }
 

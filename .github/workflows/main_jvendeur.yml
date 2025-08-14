@@ -25,7 +25,7 @@ jobs:
 
       - name: npm install, build, and test
         run: |
-          npm i -g @nestjs/cli
+          
           npm install --force
           npm run build
 
