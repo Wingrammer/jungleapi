@@ -4,7 +4,7 @@ import { UpdateProductDto } from './dto/update-product.dto';
 import { Product, ProductStatus } from './entities/product.entity';
 import { ProductCategory } from './entities/product-category.entity';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { CreateProductCategoryDto } from './dto/category/create-product-category.dto';
 import { UpdateProductCategoryDto } from './dto/category/update-product-category.dto';
 import { ProductCollection } from './entities/product-collection.entity';
@@ -43,21 +43,33 @@ export class ProductService {
     @InjectModel(Store.name) private readonly storeModel: Model<Store>,
     // Ajoute ici les autres modèles
   ) {}
-
-
-
-
-  async findAllByUser(userId: string) {
-    return this.productModel.find({ where: { ownerId: userId } });
-  }
   // product.service.ts (bloc Product)
 
- async findAllByStoreId(storeId: string) {
-  return this.productModel.find({
-    store: storeId,
-  }).populate('store');  // Assurez-vous que "store" est une référence à un autre modèle (par exemple, le modèle Store).
- }
+async findByStoreId(storeId: string | Types.ObjectId) {
+  const objectId = new Types.ObjectId(storeId); // Assurez-vous de convertir en ObjectId si nécessaire
+  const products = await this.productModel.find({ store: objectId }).populate('store');
+  
+  console.log('Produits trouvés :', products); // Vérifiez ici si vous obtenez des produits
 
+  return products;
+}
+
+
+
+
+async findByVendor(userId: string) {
+  // Trouver le store associé à ce user
+  const store = await this.storeModel.findOne({ owner: userId });
+
+  if (!store) {
+    throw new NotFoundException("Aucun store trouvé pour cet utilisateur");
+  }
+
+  // Trouver les produits liés à ce store
+  const products = await this.productModel.find({ store: store._id }).populate('store');
+
+  return products;
+}
 
  
 
@@ -79,14 +91,10 @@ export class ProductService {
   return product.save();
  }
 
- async create(dto: CreateProductDto, storeId: string): Promise<Product> {
-  const product = new this.productModel({
-    ...dto,
-    store: storeId,  // Assurez-vous que store est un ObjectId référent un document "Store"
-  });
-  return product.save();
- }
-
+  async create(dto: CreateProductDto & { store: string }) {
+    const product = new this.productModel(dto);
+    return product.save();
+  }
  
 
  //l'adimin le regete LE PRODUIT
@@ -103,7 +111,7 @@ export class ProductService {
 
     async revertToDraft(productId: string, vendorId: string) {
     const product = await this.productModel.findById(productId);
-    if (!product || product.store.toString() !== vendorId) {
+    if (!product || product.storeId.toString() !== vendorId) {
       throw new ForbiddenException();
     }
 
@@ -154,7 +162,7 @@ export class ProductService {
 
   async proposeProduct(productId: string, storeId: string) {
   const product = await this.productModel.findById(productId);
-  if (!product || product.store.toString() !== storeId) {
+  if (!product || product.storeId.toString() !== storeId) {
     throw new ForbiddenException();
   }
   product.status = ProductStatus.PROPOSED;
@@ -682,6 +690,10 @@ async softDeleteProduct(id: string): Promise<Product> {
   }
 
   
+
+  async getMyProduct(storeId: string) {
+    return this.productModel.find({ store: storeId });
+  }
 
 
 }

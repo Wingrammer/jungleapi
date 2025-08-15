@@ -1,5 +1,5 @@
 // guards/store.guard.ts
-import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
+import { BadRequestException, CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { Request } from 'express';
 import { StoreService } from 'src/store/store.service';
 
@@ -13,9 +13,11 @@ export class StoreGuard implements CanActivate {
 
     if (!user) return false;
 
-    const store = await this.storeService.findStoreByUserId(user.id); 
+    const store = await this.storeService.getMyStores(user.id); 
 
-    if (!store) return false;
+    if (!store)  {
+      throw new BadRequestException("sotre pas ")
+    };
 
     // Injection dans la requête
     (request as any).store = store;

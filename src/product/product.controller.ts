@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Put, UseInterceptors, UploadedFile, Req, UseGuards, Query, BadRequestException, UnauthorizedException } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Put, UseInterceptors, UploadedFile, Req, UseGuards, Query, BadRequestException, UnauthorizedException, NotFoundException } from '@nestjs/common';
 import { ProductService } from './product.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { CloudinaryService } from './cloudinary.service';
@@ -20,7 +20,8 @@ import { Store } from 'src/store/entities/store.entity';
 import { OwnerGuard } from 'src/auth/owner.guard';
 import { AuthRequest } from 'src/types/auth-request';
 import { AuthGuard } from '@nestjs/passport';
-import { StoreGuard } from 'src/store/store.guard';
+import { CurrentUser } from 'src/auth/current-user.decorator';
+import { StoreGuard } from 'src/auth/StoreAuthGuard';
 
 // DTO Imports
 
@@ -36,22 +37,7 @@ export class ProductController {
   // ==============================================
   
 
-
-
-  @Post()
- // @UseGuards(JwtAuthGuard) 
-  async create(@Req() req: AuthRequest, @Body() dto: CreateProductDto) {
-    const storeId = req.user?.store?._id;
-    if (!storeId) {
-      throw new BadRequestException('Aucune boutique associée à cet utilisateur');
-    }
-    return this.productService.create(dto, storeId);
-  }
-
-
-
-
-  @Get(':id')
+  @Get('retrive')
   @Roles(Role.ADMIN, Role.VENDOR)
   findOne(@Param('id') id: string) {
     return this.productService.retrieveProduct(id);
@@ -68,11 +54,44 @@ export class ProductController {
   remove(@Param('id') id: string) {
     return this.productService.deleteProduct(id);
   }
-
+/*
   @UseGuards(AuthGuard('jwt'), StoreGuard)
   @Get('store/me')
   async getVendorProducts(@CurrentStore() store: Store) {
     return this.productService.findAllByStoreId(store.id);
+  }
+*/
+/*
+  @UseGuards(AuthGuard('jwt'), StoreGuard)
+  @Post('me')
+  async createProductForVendor(@CurrentStore() store: Store,@Body() createProductDto: CreateProductDto,
+  ) {
+    return this.productService.create({
+      store: store.id, // ou store._id selon ton typage
+    });
+  }
+*/
+ @UseGuards(AuthGuard('jwt'), StoreGuard)
+  @Post('create')
+  async createProduct(@Req() req: Request, @Body() dto: CreateProductDto) {
+    const store = (req as any).store; // injecté par le StoreGuard
+    if (!store) {
+      throw new BadRequestException('Boutique non trouvée pour cet utilisateur');
+    }
+
+    const productData = { ...dto, store: store._id }; // Associe l’ID du store
+    console.log('Produit à créer :', productData); // debug
+
+    return this.productService.create(productData);
+  }
+
+
+// product.controller.ts
+  @UseGuards(AuthGuard('jwt'), StoreGuard)
+  @Get('me')
+  async getMyProducts(@Req() req: Request & { store: any }) {
+    const store = req.store;
+    return this.productService.findByStoreId(store._id);
   }
  
   // ==============================================

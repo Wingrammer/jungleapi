@@ -38,10 +38,10 @@ export class StoreController {
     return this.storeService.findAll(query);
   }
 
+
   /*@UseGuards(AuthGuard('jwt'), RolesGuard)
   @Roles(Role.VENDOR)*/
   
-  @UseGuards(AuthGuard('jwt'))
   @Get('me')
   //async getMyStore(){
   async getMyStore(@CurrentUser() userId: string) {

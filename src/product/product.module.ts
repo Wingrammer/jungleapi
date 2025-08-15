@@ -15,8 +15,8 @@ import { ProductOption, ProductOptionSchema } from './entities/product-option.en
 import { CloudinaryModule } from './cloudinary.module';
 import { Store, StoreSchema } from 'src/store/entities/store.entity';
 import { StoreModule } from 'src/store/store.module';
-import { StoreGuard } from 'src/store/store.guard';
 import { ProductCategory, ProductCategorySchema } from './entities/product-category.entity';
+import { StoreGuard } from 'src/auth/StoreAuthGuard';
 
 @Module({
   imports: [

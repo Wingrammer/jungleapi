@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document, Types } from 'mongoose';
+import mongoose, { Document, Types } from 'mongoose';
 import { ProductVariant } from './product-variant.entity';
 import { ProductType } from './product-type.entity';
 import { ProductTag } from './product-tag.entity';
@@ -20,19 +20,19 @@ export enum ProductStatus {
 
 @Schema({ timestamps: true })
 export class Product extends Document {
-  @Prop({ type: String, required: true, index: true })
+  @Prop({ type: String, required: false, index: true })
   title: string;
 
-  @Prop({ type: String, required: true, unique: true })
+  @Prop({ type: String, required: false, unique: true })
   handle: string;
 
   @Prop({ type: String })
   subtitle: string;
 
-  @Prop({ type: String })
+  @Prop({ type: String , required: false})
   description: string;
 
-  @Prop({ type: Boolean, default: false })
+  @Prop({ type: Boolean, default: false, required: false })
   is_giftcard: boolean;
 
   @Prop({
@@ -45,28 +45,28 @@ export class Product extends Document {
   @Prop({ type: String })
   thumbnail: string;
 
-  @Prop({ type: Number })
+  @Prop({ type: Number, required:false })
   weight: number;
 
-  @Prop({ type: Number })
+  @Prop({ type: Number, required: false})
   length: number;
 
-  @Prop({ type: Number })
+  @Prop({ type: Number, required: false})
   height: number;
 
-  @Prop({ type: Number })
+  @Prop({ type: Number, required: false})
   width: number;
 
-  @Prop({ type: String })
+  @Prop({ type: String, required: false})
   origin_country: string;
 
-  @Prop({ type: String })
+  @Prop({ type: String , required: false})
   hs_code: string;
 
-  @Prop({ type: String })
+  @Prop({ type: String, required:false })
   mid_code: string;
 
-  @Prop({ type: String })
+  @Prop({ type: String, required: false })
   material: string;
 
   @Prop({ type: Boolean, default: true })
@@ -78,12 +78,11 @@ export class Product extends Document {
   @Prop({ type: Object })
   metadata: Record<string, any>;
 
-  @Prop({ type: Types.ObjectId, ref: 'Store', required: true })
-  store: Store;
+  @Prop({ type: String, required: false })
+  storeId: string; 
 
-
-  @Prop({ type: [{ type: Types.ObjectId, ref: 'ProductVariant' }] })
-  variants: ProductVariant[];
+  @Prop([{ type: mongoose.Schema.Types.ObjectId, ref: 'ProductVariant' }])
+  variants: Types.ObjectId[]; 
 
   @Prop({ type: Types.ObjectId, ref: 'ProductType' })
   type: ProductType;

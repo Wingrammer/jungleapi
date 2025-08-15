@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import mongoose, { Document, Schema as MongooseSchema } from 'mongoose';
+import mongoose, { Document, Schema as MongooseSchema, Types } from 'mongoose';
 import { User } from 'src/user/entities/user.entity';
 import { StoreStatus } from '../update-store-status.dto';
 
@@ -20,7 +20,10 @@ transform: (
   },
   collection: 'stores',
 })
+
+
 export class Store extends Document {
+declare _id: Types.ObjectId;
   @Prop({ required: true, index: true })
   name: string;
 

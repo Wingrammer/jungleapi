@@ -1,9 +1,9 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Get, Injectable, NotFoundException, Req, UseGuards } from '@nestjs/common';
 import { UpdateStoreDto } from './dto/update-store.dto';
 import { Currency, CurrencyDocument } from 'src/currency/entities/currency.entity';
 import { InjectModel } from '@nestjs/mongoose';
 import { Store, StoreDocument } from './entities/store.entity';
-import mongoose, { Model } from 'mongoose';
+import mongoose, { Model, Types } from 'mongoose';
 import { CreateCurrencyDto } from './dto/create-currency.dto';
 import { User } from 'src/user/entities/user.entity';
 import { JwtService } from '@nestjs/jwt';
@@ -49,11 +49,11 @@ async createStoreForExistingUser(dto: CreateStoreDto, ownerId: string) {
     return this.storeModel.findOne({ user: userId }).exec();
   }
 
-
-async findStoreByUserId(userId: string): Promise<Store | null> {
-  return this.storeModel.findOne({ owner: userId }).exec();
+/**LE MESSI  */
+async findStoreByUserId(userId: string | Types.ObjectId) {
+  const objectId = new Types.ObjectId(userId); // cast manuel
+  return this.storeModel.findOne({ owner: objectId });
 }
-
 async updateStore(id: string, dto: UpdateStoreDto) {
   return this.storeModel.findByIdAndUpdate(id, dto, { new: true });
 }
@@ -62,6 +62,29 @@ async updateStore(id: string, dto: UpdateStoreDto) {
     return this.storeModel.find({ owner: userId });
   }
 
+
+async findOneByIdAndUser(storeId: string) {
+  const storeObjectId = new Types.ObjectId(storeId);
+  console.log("storeId converti en ObjectId:", storeObjectId);
+  const store = await this.storeModel.findOne({
+    _id: storeObjectId,
+   
+  });
+
+  console.log("la BOUTIQUE", store);
+
+  if (!store ) {
+    throw new BadRequestException('boutique pas trouver.');
+  }else{
+    throw new BadRequestException('succes')
+  } 
+
+  return store?.id;
+}
+
+async findByOwner(ownerId: string) {
+  return this.storeModel.findOne({ owner: ownerId });
+}
 
 
 // store.service.ts

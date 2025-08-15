@@ -1,4 +1,3 @@
-// create-product.dto.ts
 import {
   IsString, IsOptional, IsBoolean, IsEnum, IsNumber, IsArray, IsMongoId
 } from 'class-validator';
@@ -11,8 +10,8 @@ export class CreateProductDto {
   @IsString()
   handle: string;
 
-  @IsMongoId()
-  store: string; // Champ store obligatoire ajouté
+  @IsString()
+  storeId: string; // AJOUT OBLIGATOIRE
 
   @IsOptional()
   @IsString()
@@ -82,7 +81,7 @@ export class CreateProductDto {
   @IsMongoId({ each: true })
   variants?: string[];
 
-  @IsOptional()
+  @IsOptional() 
   @IsMongoId()
   type?: string;
 
@@ -103,7 +102,7 @@ export class CreateProductDto {
 
   @IsOptional()
   @IsMongoId()
-  collection?: string;
+  collection?: string;  // à vérifier casse en base
 
   @IsOptional()
   @IsArray()
