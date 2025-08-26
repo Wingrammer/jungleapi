@@ -1,16 +1,18 @@
-import { IsString, IsNumber, IsOptional } from 'class-validator';
+import { IsString, IsNumber, IsMongoId } from 'class-validator';
 
-export class CreateProductVariantDto {
+export class CreateVariantDto {
   @IsString()
-  sku: string;
+  size: string;
+
+  @IsString()
+  color: string;
 
   @IsNumber()
   price: number;
 
-  @IsString()
-  product_id: string;
+  @IsNumber()
+  stock: number;
 
-  @IsOptional()
-  @IsString({ each: true })
-  option_value_ids?: string[];
+  @IsMongoId()
+  productId: string;
 }

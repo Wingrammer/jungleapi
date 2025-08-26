@@ -40,8 +40,12 @@ export class User extends Document {
   @Prop({ type: Types.ObjectId, ref: 'CustomerGroup' })
   customerGroup?: CustomerGroup | Types.ObjectId;
 
-  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Store' })
-  store: Store;
+ @Prop({
+  type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Store' }],
+  default: [],
+})
+store: mongoose.Types.ObjectId[];
+
 
   @Prop({ type: String, required: false })
   authIdentity?: string;

@@ -5,7 +5,6 @@ import { Product, ProductSchema } from './entities/product.entity';
 import { ProductCollection, ProductCollectionSchema } from './entities/product-collection.entity';
 
 import { ProductOptionValue, ProductOptionValueSchema } from './entities/product-option-value.entity';
-import { ProductVariant, ProductVariantSchema } from './entities/product-variant.entity';
 import { ProductTag, ProductTagSchema } from './entities/product-tag.entity';
 import { ProductType, ProductTypeSchema } from './entities/product-type.entity';
 
@@ -17,6 +16,7 @@ import { Store, StoreSchema } from 'src/store/entities/store.entity';
 import { StoreModule } from 'src/store/store.module';
 import { ProductCategory, ProductCategorySchema } from './entities/product-category.entity';
 import { StoreGuard } from 'src/auth/StoreAuthGuard';
+import { Variant, VariantSchema } from './entities/product-variant.entity';
 
 @Module({
   imports: [
@@ -28,7 +28,7 @@ import { StoreGuard } from 'src/auth/StoreAuthGuard';
       { name: ProductCollection.name, schema: ProductCollectionSchema },
       { name: ProductOption.name, schema: ProductOptionSchema },
       { name: ProductOptionValue.name, schema: ProductOptionValueSchema },
-      { name: ProductVariant.name, schema: ProductVariantSchema },
+      { name: Variant.name, schema: VariantSchema },
       { name: ProductTag.name, schema: ProductTagSchema },
       { name: ProductType.name, schema: ProductTypeSchema },
       { name: Store.name, schema: StoreSchema },

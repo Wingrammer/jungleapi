@@ -13,10 +13,12 @@ import { Promotion, PromotionSchema } from './entities/promotion.entity';
 import { Product, ProductSchema } from 'src/product/entities/product.entity';
 import { CustomerGroup, CustomerGroupSchema } from 'src/customer/entities/customer-group.entity';
 import { MoneyAmount, MoneyAmountSchema } from 'src/pricing/entities/money-amount.entity';
+import { StoreModule } from 'src/store/store.module';
+import { StoreGuard } from 'src/auth/StoreAuthGuard';
 
 @Module({
   imports: [
-    
+     StoreModule,
     MongooseModule.forFeature([
       { name: ApplicationMethod.name, schema: ApplicationMethodSchema },
       { name: CampaignBudget.name, schema: CampaignBudgetSchema },
@@ -31,7 +33,7 @@ import { MoneyAmount, MoneyAmountSchema } from 'src/pricing/entities/money-amoun
     ]),
   ],
   controllers: [PromotionController],
-  providers: [PromotionService],
+  providers: [PromotionService, StoreGuard],
 })
 export class PromotionModule {}
 

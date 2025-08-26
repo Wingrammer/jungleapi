@@ -43,7 +43,7 @@ export class Promotion {
   categories: Types.ObjectId[];
 
   @Prop({ type: Types.ObjectId, ref: 'Store', required: true })
-  store: Types.ObjectId;
+  storeId: Types.ObjectId;
 
   @Prop({ type: [{ type: Types.ObjectId, ref: 'CustomerGroup' }], default: [] })
   customerGroups: Types.ObjectId[];

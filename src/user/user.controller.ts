@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, HttpStatus, HttpException, UsePipes, ValidationPipe, Query, Req, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, HttpStatus, HttpException, UsePipes, ValidationPipe, Query, Req, UseGuards, Put } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -82,7 +82,15 @@ async findMe(@CurrentUser() id: string) {
 
 // user.controller.ts
 
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles(Role.ADMIN, Role.VENDOR)
+  @Put('/profile')
+  async updateProfile(
+    @CurrentUser() user: User,
+    @Body() dto: UpdateUserDto
+  ) {
+    return this.userService.updateUser(user.id, dto);
+  }
  
-
   
 }

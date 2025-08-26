@@ -61,6 +61,11 @@ export class AuthService {
       if (existingAuthIdentityByEmail) {
         throw new BadRequestException('Un utilisateur avec cet email existe déjà.');
       }
+
+        const existingAuthIdentityByLastname = await this.authIdentityModel.findOne({ last_name });
+      if (existingAuthIdentityByEmail) {
+        throw new BadRequestException('Ce utilisateur existe déjà.connecter vous');
+      }
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -109,13 +114,15 @@ export class AuthService {
 
 
   generateTokens(user: User, identityId: string): TokensDto {
-    const accessPayload = {
-      sub: user.id,
-      email: user.email,
-      phone: user.phone,
-      role: user.role,
-      first_name: user.first_name,
-    };
+   const accessPayload = {
+  sub: user.id,
+  email: user.email,
+  phone: user.phone,
+  role: user.role,
+  first_name: user.first_name,
+  currentStoreId: user.store, // <-- ajouté ici
+};
+
 
     const refreshPayload = {
       sub: user.id,
@@ -373,10 +380,7 @@ export class AuthService {
     }
     user.authIdentity = authIdentity.id;
   
-    //  Si l'utilisateur est un admin "forcé"
-    if (authIdentity.email === 'anatojoyce3@gmail.com') {
-      user.role = 'admin'; //  on force ici le rôle
-    }
+
     return user;
     
   }
@@ -387,6 +391,7 @@ export class AuthService {
     // console.log(payload, 'payload')
   
     // return { access_token: this.jwtService.sign(payload) };
+  
 
     return this.generateTokens(user, user.authIdentity);
 
@@ -435,10 +440,5 @@ export class AuthService {
   
   return { access_token };
 }
-
-
-
-
-
 
 }

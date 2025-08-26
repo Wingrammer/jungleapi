@@ -12,6 +12,7 @@ import { Role } from 'src/auth/role.enum';
 import { UserService } from 'src/user/user.service';
 import { CreateStoreDto } from './dto/create-store.dto';
 import { UpdateCurrencyDto } from 'src/currency/dto/update-currency.dto';
+import { StoreStatus } from './update-store-status.dto';
 
 @Injectable()
 export class StoreService {
@@ -23,6 +24,16 @@ export class StoreService {
       private jwtService: JwtService,
   ) {}
 
+  async NomExitante(NameStore: string){
+    const nom = await this.storeModel.name
+    if (NameStore == nom){
+      throw new NotFoundException(" cette boutique existe deja ")
+    }
+    return nom
+  }
+
+  
+
 async createStoreForExistingUser(dto: CreateStoreDto, ownerId: string) { 
   console.log(ownerId, 'ownerid')
   const user = await this.userModel.findById(ownerId);
@@ -31,18 +42,31 @@ async createStoreForExistingUser(dto: CreateStoreDto, ownerId: string) {
     throw new NotFoundException("Utilisateur introuvable");
   }
 
+
   const store = await this.storeModel.create({
     ...dto,
     owner: user._id, // CORRECTION ici
-    status: 'inactive', // ou StoreStatus.INACTIVE si tu utilises l’enum
+    status: StoreStatus.INACTIVE ,
     metadata: {},
   });
+    // Ajouter le magasin à la liste des magasins de l'utilisateur (optionnel, si tu veux)
+    if (!user.store) {
+    user.store = [];
+    }
+
+    user.store.push(store._id);
+    await user.save();
 
   return {
     message: "Boutique créée avec succès",
     store,
   };
 }
+
+
+  async getStoreByIdAndUser(storeId: string, userId: string) {
+    return this.storeModel.findOne({ _id: storeId, userId }); // ou tenantId selon ta structure
+  }
 
 
   async findByUserId(userId: string): Promise<Store | null> {
@@ -52,8 +76,9 @@ async createStoreForExistingUser(dto: CreateStoreDto, ownerId: string) {
 /**LE MESSI  */
 async findStoreByUserId(userId: string | Types.ObjectId) {
   const objectId = new Types.ObjectId(userId); // cast manuel
-  return this.storeModel.findOne({ owner: objectId });
+  return this.storeModel.find({ owner: objectId });
 }
+
 async updateStore(id: string, dto: UpdateStoreDto) {
   return this.storeModel.findByIdAndUpdate(id, dto, { new: true });
 }
@@ -86,6 +111,10 @@ async findByOwner(ownerId: string) {
   return this.storeModel.findOne({ owner: ownerId });
 }
 
+
+  async findStoreByIdAndUser(storeId: string, userId: string) {
+    return this.storeModel.findOne({ _id: storeId, ownerId: userId }); // ownerId ou vendorId
+  }
 
 // store.service.ts
 async findAll(params: any) {
@@ -175,4 +204,16 @@ async findOne(id: string, user?: any) {
     return deletedCurrency;
   }
 
+
+
+  async activateStore(storeId: string): Promise<Store> {
+    const store = await this.storeModel.findById(storeId);
+    if (!store) {
+      throw new NotFoundException('Boutique non trouvée');
+    }
+
+    store.status = StoreStatus.ACTIVE;
+    return store.save();
+  }
+  
 }

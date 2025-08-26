@@ -306,7 +306,7 @@ async createPaymentForOrder(orderId: string, createPaymentDto: CreatePaymentDto)
   // 4. Créer la commande
   const order = new this.orderModel({
     cart_id: cart.id,
-    customer_id: cart.customer,
+    customer_id: cart.customerId,
     currency_code: cart.currency_code,
     region_id: cart.region_id,
     sales_channel_id: cart.sales_channel_id,
@@ -412,7 +412,7 @@ async createMultiVendorOrder(cartId: string): Promise<Order> {
   }
 
   const order = new this.orderModel({
-    customer_id: cart.customer,
+    customer_id: cart.customerId,
     email: cart.email,
     shipping_address: cart.shipping_address,
     billing_address: cart.billing_address,

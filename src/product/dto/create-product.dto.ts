@@ -1,111 +1,34 @@
 import {
-  IsString, IsOptional, IsBoolean, IsEnum, IsNumber, IsArray, IsMongoId
+  IsString, IsOptional, IsEnum, IsArray, IsMongoId,
+  IsNotEmpty, IsNumber
 } from 'class-validator';
-import { ProductStatus } from '../entities/product.entity';
+import { ProductStatus } from '../product-enum';
 
 export class CreateProductDto {
   @IsString()
   title: string;
-
-  @IsString()
-  handle: string;
-
-  @IsString()
-  storeId: string; // AJOUT OBLIGATOIRE
-
-  @IsOptional()
-  @IsString()
-  subtitle?: string;
 
   @IsOptional()
   @IsString()
   description?: string;
 
   @IsOptional()
-  @IsBoolean()
-  is_giftcard?: boolean;
-
-  @IsOptional()
   @IsEnum(ProductStatus)
   status?: ProductStatus;
 
-  @IsOptional()
-  @IsString()
-  thumbnail?: string;
-
-  @IsOptional()
   @IsNumber()
-  weight?: number;
+  price: number;
 
-  @IsOptional()
-  @IsNumber()
-  length?: number;
-
-  @IsOptional()
-  @IsNumber()
-  height?: number;
-
-  @IsOptional()
-  @IsNumber()
-  width?: number;
-
-  @IsOptional()
   @IsString()
-  origin_country?: string;
-
-  @IsOptional()
-  @IsString()
-  hs_code?: string;
-
-  @IsOptional()
-  @IsString()
-  mid_code?: string;
-
-  @IsOptional()
-  @IsString()
-  material?: string;
-
-  @IsOptional()
-  @IsBoolean()
-  discountable?: boolean;
-
-  @IsOptional()
-  @IsString()
-  external_id?: string;
-
-  @IsOptional()
-  metadata?: Record<string, any>;
+  @IsNotEmpty()
+  imageUrl: string;  // Cela peut être une chaîne ou un tableau de chaînes représentant les URL des images
 
   @IsOptional()
   @IsArray()
-  @IsMongoId({ each: true })
-  variants?: string[];
-
-  @IsOptional() 
-  @IsMongoId()
-  type?: string;
-
-  @IsOptional()
-  @IsArray()
-  @IsMongoId({ each: true })
-  tags?: string[];
-
-  @IsOptional()
-  @IsArray()
-  @IsMongoId({ each: true })
-  options?: string[];
-
-  @IsOptional()
-  @IsArray()
-  @IsMongoId({ each: true })
-  images?: string[];
-
-  @IsOptional()
-  @IsMongoId()
-  collection?: string;  // à vérifier casse en base
-
-  @IsOptional()
-  @IsArray()
-  @IsMongoId({ each: true })
-  categories?: string[];
+  variants?: {
+    size: string;
+    color: string;
+    price: number;
+    stock: number;
+  }[];
 }

@@ -1,13 +1,17 @@
-import { IsNotEmpty, IsString, IsDateString } from 'class-validator';
+import {
+  IsNotEmpty,
+  IsString,
+  IsDate,
+} from 'class-validator';
 import { Role } from 'src/auth/role.enum';
 
-export class CreateCustomerDto {
+export class RegisterDto {
+
   @IsNotEmpty()
   @IsString()
   name: string;
 
-  @IsNotEmpty()
   @IsString()
   phone: string;
-
+ 
 }

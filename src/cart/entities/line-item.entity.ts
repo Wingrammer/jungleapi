@@ -3,7 +3,7 @@ import { Document, Types } from 'mongoose';
 import { Cart } from './cart.entity';
 import { LineItemAdjustment } from './line-item-adjustment.entity';
 import { Product } from 'src/product/entities/product.entity';
-import { ProductVariant } from 'src/product/entities/product-variant.entity';
+import { Variant } from 'src/product/entities/product-variant.entity';
 import { LineItemTaxLine } from './line-item-tax-line.entity';
 
 export type LineItemDocument = LineItem & Document;
@@ -47,7 +47,7 @@ export class LineItem {
   product_type: string;
 
   @Prop({ type: Types.ObjectId, ref: 'ProductVariant', required: true })
-  product_variant: ProductVariant | Types.ObjectId;
+  product_variant: Variant | Types.ObjectId[];
 
   @Prop()
   product_type_id: string;

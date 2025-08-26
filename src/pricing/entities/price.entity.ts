@@ -5,7 +5,7 @@ import { PriceRule } from './price-rule.entity';
 import { PriceList } from './price-list.entity';
 import { Region } from 'src/region/entities/region.entity';
 import { Country } from 'src/region/entities/country.entity';
-import { ProductVariant } from 'src/product/entities/product-variant.entity';
+import { Variant } from 'src/product/entities/product-variant.entity';
 
 @Schema({ timestamps: true })
 export class Price extends Document {
@@ -47,7 +47,7 @@ export class Price extends Document {
   country?: Types.ObjectId | Country;
 
   @Prop({ type: Types.ObjectId, ref: 'ProductVariant' })
-  product_variant?: Types.ObjectId | ProductVariant;
+  product_variant?: Types.ObjectId | Variant;
 
   @Prop({ type: Date })
   deleted_at: Date;

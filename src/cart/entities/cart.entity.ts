@@ -10,11 +10,9 @@ export type CartDocument = Cart & Document;
 
 @Schema({ timestamps: true })
 export class Cart {
-  @Prop({ required: true, unique: true })
-  id: string; 
 
   @Prop({ type: Types.ObjectId, ref: 'Customer' })
-  customer: Customer;
+  customerId: Customer;
 
   @Prop({ type: String })
   email: string;

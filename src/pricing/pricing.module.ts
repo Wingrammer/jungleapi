@@ -9,7 +9,7 @@ import { PriceSet, PriceSetSchema } from './entities/price-set.entity';
 import { Customer, CustomerSchema } from 'src/customer/entities/customer.entity';
 import { Price, PriceSchema } from './entities/price.entity';
 import { MoneyAmount, MoneyAmountSchema } from './entities/money-amount.entity';
-import {  ProductVariant, ProductVariantSchema } from 'src/product/entities/product-variant.entity';
+import {  Variant, VariantSchema } from 'src/product/entities/product-variant.entity';
 import { Currency, CurrencySchema } from 'src/currency/entities/currency.entity';
 
 
@@ -24,7 +24,7 @@ import { Currency, CurrencySchema } from 'src/currency/entities/currency.entity'
       { name: Customer.name, schema: CustomerSchema },
       { name: Price.name, schema: PriceSchema },
       { name: MoneyAmount.name, schema: MoneyAmountSchema },
-      { name: ProductVariant.name, schema: ProductVariantSchema },
+      { name: Variant.name, schema: VariantSchema },
       { name: Currency.name, schema: CurrencySchema },
     ]),
   ],

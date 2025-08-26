@@ -20,82 +20,72 @@ import { TaxModule } from './tax/tax.module';
 import { UserModule } from './user/user.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { APP_GUARD, Reflector } from '@nestjs/core';
-import { RolesGuard } from './auth/roles.guards';
-import { JwtAuthGuard } from './auth/jwt-auth.guard';
-import { PoliciesGuard } from './auth/policies.guard';
-import { CartModule } from './cart/cart.module';
-import { ScheduleModule } from '@nestjs/schedule';
-import { CaslModule } from './casl/casl.module';
+import { APP_GUARD } from '@nestjs/core';
+import { CloudinaryService } from './product/cloudinary.service';
+import { MulterModule } from '@nestjs/platform-express';
 import { MailerModule } from '@nestjs-modules/mailer';
+import { ScheduleModule } from '@nestjs/schedule';
+import { CloudinaryModule } from './product/cloudinary.module'; // Assurez-vous d’avoir ce module
 
-@Module({imports: [
-  ConfigModule.forRoot({ isGlobal: true }),
-  MailerModule.forRootAsync({
-    imports: [ConfigModule],
-    inject: [ConfigService],
-    useFactory: async (config: ConfigService) => ({
-      transport: {
-        host: config.get<string>('MAIL_HOST'),
-        port: config.get<number>('MAIL_PORT'),
-        secure: false,
-        auth: {
-          user: config.get<string>('MAIL_USER'),
-          pass: config.get<string>('MAIL_PASS'),
+@Module({
+  imports: [
+    MulterModule.register({
+      dest: './uploads', // Dossier temporaire pour stocker les fichiers téléchargés
+    }),
+    ConfigModule.forRoot({ isGlobal: true }),
+    MailerModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: async (config: ConfigService) => ({
+        transport: {
+          host: config.get<string>('MAIL_HOST'),
+          port: config.get<number>('MAIL_PORT'),
+          secure: false,
+          auth: {
+            user: config.get<string>('MAIL_USER'),
+            pass: config.get<string>('MAIL_PASS'),
+          },
         },
-      },
-      defaults: {
-        from: config.get<string>('MAIL_FROM') || '"Jungle" <no-reply@jungle.com>',
-      },
+        defaults: {
+          from: config.get<string>('MAIL_FROM') || '"Jungle" <no-reply@jungle.com>',
+        },
+      }),
     }),
-  }),
-  MongooseModule.forRootAsync({
-    useFactory: (configService: ConfigService) => ({
-      uri: configService.get<string>('DB_URI'),
+    MongooseModule.forRootAsync({
+      useFactory: (configService: ConfigService) => ({
+        uri: configService.get<string>('DB_URI'),
+      }),
+      inject: [ConfigService],
     }),
-    inject: [ConfigService],
-  }),
     ScheduleModule.forRoot(),
     ApiKeyModule,
-    AuthModule,  
-    CaslModule,
-    CartModule, 
-    CurrencyModule, 
-    CustomerModule, 
-    FulfillmentModule, 
-    InventoryModule, 
-    OrderModule, 
-    PaymentModule, 
-    PricingModule, 
-    ProductModule, 
-    PromotionModule, 
-    RegionModule, 
-    SalesChannelModule, 
-    StockLocationModule, 
-    StoreModule, 
-    TaxModule, 
+    AuthModule,
+    CurrencyModule,
+    CustomerModule,
+    FulfillmentModule,
+    InventoryModule,
+    OrderModule,
+    PaymentModule,
+    PricingModule,
+    ProductModule,
+    PromotionModule,
+    RegionModule,
+    SalesChannelModule,
+    StockLocationModule,
+    StoreModule,
+    TaxModule,
     UserModule,
-    ConfigModule.forRoot(
-      {
-   isGlobal: true,
-    }
-    ),
-    MongooseModule.forRootAsync({
-    useFactory: (configService: ConfigService) => ({
-      uri: configService.get<string>('DB_URI'),
-    }),
-    inject: [ConfigService],
-  }),
-
+    CloudinaryModule,  // Ajout de CloudinaryModule
   ],
   controllers: [AppController],
-  providers: [AppService,
-
+  providers: [
+    AppService,
+    CloudinaryService,  // Le service Cloudinary
+    // D'autres providers ici, si nécessaire
     // {
     //   provide: APP_GUARD,
     //   useClass: RolesGuard,
     // },
   ],
-  
 })
 export class AppModule {}

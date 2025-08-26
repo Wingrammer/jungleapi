@@ -14,6 +14,8 @@ import { UpdateCartDto } from "./dto/update-cart.dto";
 import { User } from "src/user/entities/user.entity";
 import { CreateLineItemDto } from "./dto/create-line-item.dto";
 import { Promotion } from "src/promotion/entities/promotion.entity";
+import { Customer } from "src/customer/entities/customer.entity";
+import { CartDTO } from "./dto/cart.dto";
 
 
 export class CartService {
@@ -31,11 +33,12 @@ export class CartService {
     @InjectModel(Order.name) private readonly orderModel: Model<OrderDocument>,
     @InjectModel(ShippingMethodAdjustment.name) private adjustmentModel: Model<ShippingMethodAdjustmentDocument>,
     @InjectModel(Promotion.name) private readonly promotionModel: Model<Promotion>,
+    @InjectModel(Customer.name) private readonly customerModel: Model<Customer>,
 
   
   ) {}
 
-   async createCart(dto: CreateCartDto): Promise<Cart> {
+  async createCart(dto: CreateCartDto): Promise<Cart> {
     const cart = new this.cartModel({
       ...dto,
       items: [],
@@ -74,9 +77,40 @@ async getCart(cartId: string): Promise<CartDocument> {
 }
 
 
+async createCartByCustomer(createCartDto: Partial<CartDTO>, req): Promise<Cart> {
+  const { items, ...rest } = createCartDto;
+
+  // Récupération du customerId depuis JWT
+  const customerId = req.user?.id;
+  if (!customerId) {
+    throw new BadRequestException('Identifiant client manquant dans le token');
+  }
+
+  const customer = await this.customerModel.findById(customerId).exec();
+  if (!customer) {
+    throw new NotFoundException('Client non trouvé');
+  }
+
+  const newCart = new this.cartModel({
+    customerId: customer._id,
+    items: items || [],
+    ...rest,
+  });
+
+  return await newCart.save();
+}
 
 
-    // 🔹 Ajouter un produit au panier
+
+
+  // Optionnel : Méthode pour récupérer tous les paniers d'un client
+  async getCartsByCustomerId(customerId: string): Promise<Cart[]> {
+    return this.cartModel.find({ customerId }).exec();
+  }
+
+
+
+    // Ajouter un produit au panier
   async addItemToCart(cartId: string, itemDto: CreateLineItemDto): Promise<Cart> {
     const lineItem = new this.lineItemModel({
       ...itemDto,
@@ -95,26 +129,42 @@ async getCart(cartId: string): Promise<CartDocument> {
     // Recalcul des totaux
     return this.calculateCartTotals(cartId);
   }
+
+
+  
+// Ajouter un produit au panier
+ async addProductToCart(cartId: string, productData: any): Promise<LineItem> {
+  //  Vérification si le panier existe
+  const cart = await this.cartModel.findById(cartId);
+  if (!cart) {
+    throw new BadRequestException(`Le panier avec l'id ${cartId} n'existe pas.`);
+  }
+
+  //  Création du LineItem
+  const lineItem = new this.lineItemModel({
+    ...productData,
+    cart: cartId, //  Associe bien le produit au vrai Cart
+    id: `cali_${Date.now()}`, // Génération d’un ID unique custom
+  });
+
+  //  Sauvegarde en base
+  return await lineItem.save();
+}
+
+
+  // Récupérer tous les produits d’un panier
+  async getCartItems(cartId: string): Promise<LineItem[]> {
+    return this.lineItemModel
+      .find({ cart: cartId })
+      .populate('product')          // populate pour ramener le produit
+      .populate('product_variant')  // populate la variante
+      .populate('tax_lines')        // populate taxes
+      .populate('adjustments')      // populate ajustements
+      .exec();
+  }
   
 async calculateCartTotals(cartId: string): Promise<Cart> {
   const cart = await this.cartModel.findById(cartId)
-    .populate({
-      path: 'items',
-      populate: [
-        { path: 'tax_lines', model: 'LineItemTaxLine' },
-        { path: 'adjustments', model: 'LineItemAdjustment' }
-      ]
-    })
-    .populate({
-      path: 'shipping_methods',
-      populate: [
-        { path: 'adjustments', model: 'ShippingMethodAdjustment' },
-        { path: 'tax_lines', model: 'ShippingMethodTaxLine' }
-      ]
-    })
-    .populate('shipping_address billing_address customer_id')
-    .exec();
-
   if (!cart) throw new NotFoundException(`Cart with ID ${cartId} not found`);
 
   let subtotal = 0;

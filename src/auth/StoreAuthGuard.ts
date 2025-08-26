@@ -11,12 +11,14 @@ export class StoreGuard implements CanActivate {
     const request = context.switchToHttp().getRequest<Request>();
     const user = request.user;
 
-    if (!user) return false;
+      if (!user)  {
+      throw new BadRequestException("utiulisateur non trouver ")
+    };
 
     const store = await this.storeService.getMyStores(user.id); 
-
+    //console.log(store)
     if (!store)  {
-      throw new BadRequestException("sotre pas ")
+      throw new BadRequestException("store pas trouver ")
     };
 
     // Injection dans la requête

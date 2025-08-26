@@ -33,13 +33,12 @@ export class AuthController {
      private readonly otpService: OtpService,
   ) {}
 
-
-  
   /** REGISTER */
   @Post('register')
   register(@Body() registerDto: RegisterDto) {
     return this.authService.register(registerDto);
   }
+  
 
   /** LOGIN PAR PHONE + PASSWORD */
   @UseGuards(AuthGuard('local'))
@@ -58,7 +57,12 @@ export class AuthController {
   getProfil(@Request() req) {
     return req.user;
   }
-
+/*
+@Post('forgot-password')
+async forgotPassword(@Body() body: { email: string }) {
+  return this.authService.sendResetPasswordEmail(body.email);
+}
+*/
   @Roles(Role.VENDOR)
   @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Get('vendor_profile')
@@ -77,9 +81,9 @@ export class AuthController {
   }
  
   /** PROFILE */
-  @Get('profile')
-  @Roles(Role.VENDOR)
+  @Roles(Role.VENDOR,Role.ADMIN)
   @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Get('profile')
   async getProfile(@Request() req) {
     const userId = req.user.sub;
     console.log(userId, "userId")

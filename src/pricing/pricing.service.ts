@@ -21,8 +21,8 @@ import { CreatePriceDto } from './dto/create-price.dto';
 import { Price } from './entities/price.entity';
 import { CreateMoneyAmountDTO } from './dto/create-money-amount.dto';
 import { MoneyAmount } from './entities/money-amount.entity';
-import { ProductVariant } from 'src/product/entities/product-variant.entity';
 import { Currency, CurrencyDocument } from 'src/currency/entities/currency.entity';
+import { Variant } from 'src/product/entities/product-variant.entity';
 
 
 @Injectable()
@@ -36,7 +36,7 @@ export class PricingService {
     @InjectModel(Customer.name) private customerModel: Model<CustomerDocument>,
     @InjectModel(Price.name) private priceModel: Model<Price>,
     @InjectModel(MoneyAmount.name) private moneyAmountModel: Model<Price>,
-    @InjectModel(ProductVariant.name) private variantModel: Model<ProductVariant>,
+    @InjectModel(Variant.name) private variantModel: Model<Variant>,
     @InjectModel(Currency.name) private currencyModel: Model<CurrencyDocument>,
   ) {}
 
@@ -268,6 +268,13 @@ export class PricingService {
   });
 
  }
+
+  async getAllPrices(): Promise<Price[]> {
+    return this.priceModel.find({ deleted_at: { $exists: false } })  // Exclut les prix supprimés
+      .populate('price_list')  // Récupère les informations de la liste de prix associée
+      .populate('price_set')   // Récupère les informations de l'ensemble de prix associé
+      .exec();
+  }
 
   /**
    * Vérifie si une règle s'applique à un client
@@ -582,18 +589,7 @@ C’est une entité simple mais puissante pour regrouper les objets
     return savedMoneyAmount;
   }
 
-  async getPricesForVariant(variantId: string): Promise<MoneyAmount[]> {
-    // Récupère tous les MoneyAmount liés au variant (via prices dans variant)
-    const variant = await this.variantModel.findById(variantId).populate('prices');
-    if (!variant) {
-      throw new NotFoundException(`ProductVariant with id ${variantId} not found`);
-    }
-    return variant.prices as MoneyAmount[];
-  }
 
-   async getAllPrices(): Promise<MoneyAmount[]> {
-    return this.moneyAmountModel.find().exec();
-  }
 /*
   async createPrice(phone: string, dto: CreatePriceDto): Promise<Price> {
     const vendor = await this.produc.findByPhone(phone);

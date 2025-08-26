@@ -14,6 +14,7 @@ import { ShippingMethodTaxLine, ShippingMethodTaxLineSchema } from './entities/s
 import { ShippingMethodAdjustment, ShippingMethodAdjustmentSchema } from './entities/shipping-method-adjustment.entity';
 import { Order, OrderSchema } from 'src/order/entities/CommandePrincipale/order.entity';
 import { Promotion ,PromotionSchema} from 'src/promotion/entities/promotion.entity';
+import { Customer, CustomerSchema } from 'src/customer/entities/customer.entity';
 
 @Module({
   imports: [
@@ -28,7 +29,8 @@ import { Promotion ,PromotionSchema} from 'src/promotion/entities/promotion.enti
           {name: ShippingMethodTaxLine.name, schema: ShippingMethodTaxLineSchema },
           {name: ShippingMethodAdjustment.name, schema: ShippingMethodAdjustmentSchema },
           { name: Order.name, schema: OrderSchema },
-          { name: Promotion.name, schema: PromotionSchema }
+          { name: Promotion.name, schema: PromotionSchema },
+          { name: Customer.name, schema: CustomerSchema },
         ]),
       
   ],

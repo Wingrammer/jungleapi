@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, HydratedDocument } from 'mongoose';
 import { User } from './entities/user.entity';
@@ -131,6 +131,18 @@ async checkUserHasStoreByEmailOrPhone(email?: string, phone?: string): Promise<b
   const store = await this.storeModel.findOne({ owner: user._id });
   return !!store;
 }
+
+async updateUser(userId: string, dto: UpdateUserDto): Promise<User> {
+    const user = await this.userModel.findById(userId);
+    if (!user) {
+      throw new NotFoundException('Utilisateur non trouvé');
+    }
+
+    // Mettre à jour uniquement les champs fournis
+    Object.assign(user, dto);
+
+    return user.save();
+  }
 
 
   

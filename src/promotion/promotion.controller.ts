@@ -7,6 +7,7 @@ import { Roles } from 'src/auth/roles.decorator';
 import { AuthGuard } from '@nestjs/passport';
 import { RolesGuard } from 'src/auth/roles.guards';
 import { AuthRequest } from 'src/types/auth-request';
+import { StoreGuard } from 'src/auth/StoreAuthGuard';
 
 @Controller('promotions')
 export class PromotionController {
@@ -14,7 +15,7 @@ export class PromotionController {
 
   
   @Get('me')
-  getMyProducts(@Req() req) {
+  getMyPromotions(@Req() req) {
     return this.promotionService.findAllByUser(req.user.sub);
   }
 
@@ -25,22 +26,21 @@ export class PromotionController {
   }
 
   @Delete(':id')
-async softDelete(@Param('id') id: string) {
-  return this.promotionService.softDelete(id);
-}
+  async softDelete(@Param('id') id: string) {
+    return this.promotionService.softDelete(id);
+  }
 
- 
-  @Get('toutes-promotions')
-  @UseGuards(AuthGuard('jwt'), RolesGuard)
-  @Roles(Role.ADMIN)
-  findAll() {
-    return this.promotionService.findAll();
+  @UseGuards(AuthGuard('jwt'), StoreGuard)
+  @Get("my")
+  async findAll(@Req() req: any) {
+    const storeId = req.user.storeId; // récupéré depuis le JWT
+    return this.promotionService.findAll(storeId);
   }
 
   //LES ADMINI AURONS ACCES A MODIFIER AUTOMATIQUEMENT LE STATUS DES PROMOTIONS 
 
   @Patch('maj-statuts')
-  @Roles(Role.ADMIN)
+  @Roles(Role.ADMIN, Role.VENDOR)
   @UseGuards(AuthGuard('jwt'), RolesGuard)
   forceUpdateStatus() {
     return this.promotionService.updateAllStatuses();
@@ -74,15 +74,5 @@ async softDelete(@Param('id') id: string) {
     return this.promotionService.calculatePromotionDiscount(promo, payload.cart);
   }
 
-  @Post(':id/eligibility')
-  async isEligible(
-    @Param('id') id: string,
-    @Body() payload: { cart: any; user: any },
-  ) {
-    const promo = await this.promotionService.findOne(id);
-    if (!promo) {
-  throw new NotFoundException('Promotion introuvable');
-  }
-    return this.promotionService.isPromotionEligible(promo, payload.cart, payload.user);
-  }
+
 }

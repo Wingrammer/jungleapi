@@ -13,20 +13,7 @@ export class ProductCategory extends Document {
   @Prop({ index: true, unique: true })
   handle: string;
 
-  @Prop()
-  mpath: string;
 
-  @Prop({ default: false })
-  is_active: boolean;
-
-  @Prop({ default: false })
-  is_internal: boolean;
-
-  @Prop({ default: 0 })
-  rank: number;
-
-  @Prop({ type: Object })
-  metadata: Record<string, any>;
 
   @Prop({ type: Types.ObjectId, ref: 'ProductCategory' })
   parent_category: ProductCategory;

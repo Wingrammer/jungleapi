@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, NotFoundException, Req, Put, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, NotFoundException, Req, Put, Query, Request } from '@nestjs/common';
 import { StoreService } from './store.service';
 import { CreateStoreDto } from './dto/create-store.dto';
 import { UpdateStoreDto } from './dto/update-store.dto';
@@ -23,8 +23,9 @@ export class StoreController {
     return this.storeService.createStoreForExistingUser(dto, dto.owner);
   }
 
+
  
-// store.controller.ts
+ // store.controller.ts
   @Put(':id')
   async updateStore(@Param('id') id: string, @Body() updateStoreDto: UpdateStoreDto) {
     return this.storeService.updateStore(id, updateStoreDto);
@@ -32,22 +33,21 @@ export class StoreController {
 
 
 
-
-  @Get()
+  @Get('my-stores')
   findAll(@Query() query: any) {
     return this.storeService.findAll(query);
   }
 
 
-  /*@UseGuards(AuthGuard('jwt'), RolesGuard)
-  @Roles(Role.VENDOR)*/
-  
+  /*@UseGuards(AuthGuard('jwt'), RolesGuard)*/
+  @Roles(Role.VENDOR)
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Get('me')
   //async getMyStore(){
-  async getMyStore(@CurrentUser() userId: string) {
-    //const userId = ''
-    console.log('USER ID from token:', "userId"); // pour debug
-    return {}
+  async getMyStore(@Request() req) {
+    const userId = req.user.id
+    console.log('USER ID from token:', userId); // pour debug
+    //return {}
     if (!userId) {
       throw new NotFoundException('Utilisateur non authentifié.');
     }
@@ -60,6 +60,36 @@ export class StoreController {
     return store;
   }
 
+//  @UseGuards(AuthGuard('jwt'), RolesGuard)
+//  @Roles(Role.ADMIN)
+  @Patch(':id/activate')
+  async activate(@Param('id') id: string) {
+    return this.storeService.activateStore(id);
+  }
+
+
+   /*@UseGuards(AuthGuard('jwt'), RolesGuard)*/
+  @Roles(Role.VENDOR)
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Get('my')
+  //async getMyStore(){
+  async getMyStores(@Request() req) {
+    const userId = req.user.id
+    console.log('USER ID from token:', userId); // pour debug
+    //return {}
+    if (!userId) {
+      throw new NotFoundException('Utilisateur non authentifié.');
+    }
+
+    const store = await this.storeService.getMyStores(userId);
+    if (!store) {
+      throw new NotFoundException('Aucune boutique trouvée pour ce vendeur.');
+    }
+    const premierStore = store[0]
+    console.log(premierStore)
+    return store;
+  }
+
   @Get(':id')
   async findOne(@Param('id') id: string) {
     const store = await this.storeService.findOne(id); // OK : pas besoin de user
@@ -68,7 +98,7 @@ export class StoreController {
   }
 
  
- 
+
 
   @Patch(':id')
   @Roles(Role.VENDOR, Role.ADMIN)
@@ -82,6 +112,7 @@ export class StoreController {
   remove(@Param('id') id: string) {
     return this.storeService.remove(id);
   }
+  
   //currency 
 
   @Post('currency')

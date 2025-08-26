@@ -2,20 +2,11 @@ import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/commo
 import { CustomerService } from './customer.service';
 import { CreateCustomerDto } from './dto/create-customer.dto';
 import { UpdateCustomerDto } from './dto/update-customer.dto';
+import { RegisterDto } from './dto/registerCustomer.dto';
 
 @Controller('customer')
 export class CustomerController {
   constructor(private readonly customerService: CustomerService) {}
-
-  @Post()
-  create(@Body() createCustomerDto: CreateCustomerDto) {
-    return this.customerService.create(createCustomerDto);
-  }
-
-  @Get()
-  findAll() {
-    return this.customerService.findAll();
-  }
 
   @Get(':id')
   findOne(@Param('id') id: string) {
@@ -31,4 +22,15 @@ export class CustomerController {
   remove(@Param('id') id: string) {
     return this.customerService.remove(+id);
   }
+
+  @Post()
+  async create(@Body() dto: RegisterDto) {
+    return this.customerService.register(dto);
+  }
+
+  @Get()
+  async findAll() {
+    return this.customerService.findAll();
+  }
+
 }

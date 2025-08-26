@@ -1,7 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
 import { Currency } from 'src/currency/entities/currency.entity';
-import { ProductVariant } from 'src/product/entities/product-variant.entity';
+import { Variant } from 'src/product/entities/product-variant.entity';
 
 @Schema({ timestamps: true })
 export class MoneyAmount {
@@ -15,7 +15,7 @@ export class MoneyAmount {
   currency?: Types.ObjectId | Currency;
 
     @Prop({ type: Types.ObjectId, ref: 'ProductVariant' })
-    variant?: Types.ObjectId | ProductVariant;
+    variant?: Types.ObjectId | Variant;
 
 
   @Prop({ type: Date })

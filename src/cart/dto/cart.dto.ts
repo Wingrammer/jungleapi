@@ -12,9 +12,6 @@ export class CartDTO {
   region_id: string;
 
   @Expose()
-  customer_id: string;
-
-  @Expose()
   sales_channel_id: string;
 
   @Expose()
@@ -57,4 +54,20 @@ export class CartDTO {
 
   @Expose()
   updatedAt: Date;
+
+    @Expose()
+  subtotal: number;
+
+  @Expose()
+  total: number;
+
+  @Expose()
+  tax_total: number;
+
+  @Expose()
+  discount_total: number;
+
+  @Expose()
+  shipping_total: number;
+
 }

@@ -24,7 +24,7 @@ transform: (
 
 export class Store extends Document {
 declare _id: Types.ObjectId;
-  @Prop({ required: true, index: true })
+  @Prop({ required: true, index: true, unique: true })
   name: string;
 
   @Prop({ type: String, default: null })

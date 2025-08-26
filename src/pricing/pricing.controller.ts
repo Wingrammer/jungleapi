@@ -32,9 +32,10 @@ import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { CreateMoneyAmountDTO } from './dto/create-money-amount.dto';
 import { MoneyAmount } from './entities/money-amount.entity';
 import { CreatePricePreferenceDto } from './dto/create-price-preference.dto';
+import { AuthGuard } from '@nestjs/passport';
 
 @UseGuards(JwtAuthGuard, RolesGuard)
-@Controller('pricing')
+@Controller('price')
 
 export class PricingController {
   constructor(private readonly pricingService: PricingService) {}
@@ -44,7 +45,7 @@ export class PricingController {
 
 
   @Get('price')
-  async getAllPrices() {
+  async getAllPricesAmount() {
     return this.pricingService.findAllPrices();
   }
 
@@ -75,14 +76,7 @@ export class PricingController {
   }
 
   // Récupérer les prix pour un variant donné
-  @Get('variant/:id/prices')
-  async getPricesForVariant(@Param('id') variantId: string): Promise<MoneyAmount[]> {
-    const prices = await this.pricingService.getPricesForVariant(variantId);
-    if (!prices || prices.length === 0) {
-      throw new NotFoundException(`No prices found for variant ${variantId}`);
-    }
-    return prices;
-  }
+
 
  
 
@@ -96,8 +90,9 @@ export class PricingController {
   // ────────────────  PRICE LIST RULE ────────────────
 
   /**  ADMIN ONLY - Créer une règle */
+//  @Roles(Role.VENDOR)
+//  @UseGuards(AuthGuard('jwt'))
   @Post('price-list-rule')
-  @Roles(Role.ADMIN)
   createPriceListRule(@Body() dto: CreatePriceListRuleDto) {
     return this.pricingService.createPriceListRule(dto);
   }
@@ -123,7 +118,7 @@ export class PricingController {
     return this.pricingService.updatePriceListRule(id, dto);
   }
 
-  /** 👤 ADMIN ONLY - Supprimer une règle (soft delete) */
+  /**  ADMIN ONLY - Supprimer une règle (soft delete) */
   @Delete('price-list-rule/:id')
   @Roles(Role.ADMIN)
   softDeletePriceListRule(@Param('id') id: string) {
@@ -165,6 +160,11 @@ export class PricingController {
   @Roles(Role.ADMIN, Role.CUSTOMER, Role.VENDOR)
   getPriceListsByType(@Param('type') type: PriceListType) {
     return this.pricingService.getPriceListsByType(type);
+  }
+
+  @Get('list')  // Cette route sera accessible à l'URL /prices/list
+  async getAllPrices() {
+    return this.pricingService.getAllPrices();
   }
 
   /**  TOUS RÔLES - Obtenir une PriceList par ID */
